@@ -35,12 +35,22 @@ static const theme_t THEMES[] = {
     {"GREEN", RGB(0xa3, 0xbf, 0x3c), RGB(0x1c, 0x2a, 0x08)},        /* 3 BLACK ON GREEN */
     {"BLUE INV", RGB(0xf4, 0xf8, 0xff), RGB(0x24, 0x45, 0xc8)},     /* 4 BLUE ON WHITE */
     {"GREEN INV", RGB(0x0c, 0x12, 0x04), RGB(0xb4, 0xd0, 0x44)},    /* 5 GREEN ON BLACK */
+    {"LOOM", RGB(0, 0, 0), RGB(235, 235, 238)},                     /* 6 LOOM-8's b/w theme: the colour roles below */
 };
+#define THEME_LOOM 6u
 #define NTHEMES (sizeof(THEMES) / sizeof(THEMES[0]))
 #define THEME_TAG 0x10u
 _Static_assert(NTHEMES <= 16u, "the theme index is 4 bits (THEME_TAG | index)");
-static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5};   /* RED RED INV BLUE BLUE INV GREEN GREEN INV */
+static const uint8_t THEME_ORDER[NTHEMES] = {0, 1, 2, 4, 3, 5, 6};   /* RED RED INV BLUE BLUE INV GREEN GREEN INV */
 static uint16_t C_BG, C_INK;
+/* Colour roles (the LOOM theme; LOOM-8's b/w theme, app/pages.c THEMES). In a two-colour theme every K_* that stands
+ * where C_INK stood is C_INK, and every one that stands where C_BG stood is C_BG: those themes draw as before, pixel
+ * for pixel. Ink side: K_TEXT (the theme's ink, whatever C_INK is at the moment), K_BAR (the top / bottom bars'
+ * ground), K_RULE (frames, dotted rules), K_LAB (labels), K_OFF (empty steps), K_LOCK (locks), K_NOW (the selected
+ * track's colour), k_trk[] (each track's). Ground side: K_BARTX (text on a bar), K_BARREC (REC on a bar), K_NOWB (the
+ * selected track's colour on a bar) */
+static uint16_t K_TEXT, K_BAR, K_RULE, K_LAB, K_OFF, K_LOCK, K_NOW, K_BARTX, K_BARREC, K_NOWB, k_trk[8], k_trkb[8];
+static uint8_t ink_dep;                               /* ink_push: C_INK is a track's colour for the shapes drawn */
 
 static uint32_t theme_index(uint32_t stored)
 {
@@ -66,8 +76,38 @@ static uint32_t theme_step(uint32_t stored, int32_t dir)
 static void theme_set(uint32_t stored)
 {
     const theme_t *t = &THEMES[theme_index(stored)];
+    uint32_t k, loom = theme_index(stored) == THEME_LOOM;
+    static const uint16_t INK[8] = {RGB(255, 92, 170), RGB(40, 204, 192), RGB(244, 200, 60), RGB(104, 152, 255),
+                                    RGB(255, 136, 64), RGB(110, 216, 110), RGB(178, 136, 255), RGB(214, 176, 136)};
     C_BG = t->bg;
     C_INK = t->ink;
+    ink_dep = 0;
+    K_TEXT = C_INK;
+    K_BAR = loom ? RGB(58, 58, 64) : C_INK;
+    K_RULE = K_OFF = loom ? RGB(96, 96, 102) : C_INK;
+    K_LAB = loom ? RGB(150, 150, 156) : C_INK;
+    K_LOCK = loom ? RGB(232, 44, 38) : C_INK;
+    K_BARTX = loom ? C_INK : C_BG;
+    K_BARREC = loom ? RGB(232, 44, 38) : C_BG;
+    for (k = 0; k < 8u; k++) {
+        k_trk[k] = loom ? INK[k] : C_INK;
+        k_trkb[k] = loom ? INK[k] : C_BG;
+    }
+    K_NOW = k_trk[0];
+    K_NOWB = k_trkb[0];
+}
+/* the shapes drawn until ink_pop in colour c (C_INK is c); text asked for in C_INK stays the theme's ink (md_text),
+ * dotted rules K_RULE (cv_hdot, cv_vdot) */
+static void ink_push(uint16_t c)
+{
+    if (!ink_dep++)
+        K_TEXT = C_INK;
+    C_INK = c;
+}
+static void ink_pop(void)
+{
+    if (ink_dep && !--ink_dep)
+        C_INK = K_TEXT;
 }
 
 static inline uint16_t swap16(uint32_t c) { return (uint16_t)(((c >> 8) & 0xFFu) | ((c & 0xFFu) << 8)); }
@@ -204,6 +244,8 @@ static int md_glyph(const md_font_t *f, uint32_t ch, uint32_t *gi)
  * the string (each glyph advances its width + 1, times sc) */
 static int32_t md_text(int32_t x, int32_t y, const md_font_t *f, uint32_t sc, const char *s, uint16_t c)
 {
+    if (ink_dep && c == C_INK)
+        c = K_TEXT;
     for (; *s; s++) {
         uint32_t gi, w, r, k;
         if (!md_glyph(f, (uint8_t)*s, &gi))
@@ -251,12 +293,16 @@ static void cv_frame(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t ink)
 
 static void cv_hdot(int32_t x0, int32_t x1, int32_t y, uint16_t ink)   /* 1 on, 1 off from x0 */
 {
+    if (ink_dep && ink == C_INK)
+        ink = K_RULE;
     for (; x0 <= x1; x0 += 2)
         cv_pset(x0, y, ink);
 }
 
 static void cv_vdot(int32_t x, int32_t y0, int32_t y1, uint16_t ink)
 {
+    if (ink_dep && ink == C_INK)
+        ink = K_RULE;
     for (; y0 <= y1; y0 += 2)
         cv_pset(x, y0, ink);
 }
@@ -346,6 +392,8 @@ static void cv_knob(int32_t cx, int32_t cy, int32_t r, int32_t v, int32_t lfo, u
 static int32_t cv_tab(int32_t x, int32_t y, const char *s, uint16_t ink, uint16_t bg)
 {
     int32_t w = md_text_w(&MD_F3, 2, s) + 6;
+    if (ink == C_INK)
+        ink = K_NOW;
     cv_rect(x, y, w, 13, ink);
     md_text(x + 3, y + 2, &MD_F3, 2, s, bg);
     return w;
@@ -365,7 +413,7 @@ static void cv_popup(int32_t x, int32_t y, int32_t w, int32_t h, const char *tit
     cv_rect(x, y + h, 1, 1, bg);
     if (title && title[0]) {
         int32_t tw = md_text_w(&MD_F3, 2, title) + 12, tx = x + w / 2 - tw / 2;
-        cv_rect(tx, y - 6, tw, 15, ink);
+        cv_rect(tx, y - 6, tw, 15, ink == C_INK ? K_NOW : ink);
         md_text(tx + 6, y - 3, &MD_F3, 2, title, bg);
     }
 }
@@ -384,7 +432,7 @@ static void cv_button(int32_t x, int32_t y, int32_t w, const char *s, int on, ui
 {
     int32_t tx = x + (w - md_text_w(&MD_F3, 2, s)) / 2;
     if (on)
-        cv_rect(x, y, w, 15, ink);
+        cv_rect(x, y, w, 15, ink == C_INK ? K_NOW : ink);
     else
         cv_frame(x, y, w, 15, ink);
     md_text(tx, y + 3, &MD_F3, 2, s, on ? bg : ink);
@@ -401,14 +449,14 @@ static void cv_trigs(int32_t x0, int32_t y, uint32_t n, uint32_t on16, uint32_t 
         if (on16 >> i & acc16 >> i & 1u)
             cv_rect(bx, y, 10, 10, ink);
         else {
-            cv_frame(bx, y, 10, 10, ink);
+            cv_frame(bx, y, 10, 10, on16 >> i & 1u ? ink : K_OFF);
             if (on16 >> i & 1u)
                 cv_dither(bx + 1, y + 1, 8, 8, ink);
         }
         if ((uint32_t)i == step)
-            cv_frame(bx - 2, y - 2, 14, 14, ink);
+            cv_frame(bx - 2, y - 2, 14, 14, K_TEXT);
         if (i % 4 == 0)
-            cv_rect(bx + 4, y + 14, 2, 2, ink);
+            cv_rect(bx + 4, y + 14, 2, 2, K_OFF);
     }
 }
 

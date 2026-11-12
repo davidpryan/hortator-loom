@@ -268,19 +268,19 @@ static void draw_name(void)
     ui.force = 0;
     str_cpy(b, "NAME PROJECT A", sizeof b);        /* the title bar: an ink bar, the title and n/12 in BG */
     b[str_len(b) - 1u] = (char)('A' + nm.slot);
-    cv_begin(240, 16, C_INK);
-    md_text(6, 3, &MD_F3, 2, ui.msg_t ? ui.msg : b, C_BG);
+    cv_begin(240, 16, K_BAR);
+    md_text(6, 3, &MD_F3, 2, ui.msg_t ? ui.msg : b, K_BARTX);
     fmt_int(b, nm.len);
     str_cpy(b + str_len(b), "/12", 4);
-    md_text(234 - md_text_w(&MD_F3, 2, b), 3, &MD_F3, 2, b, C_BG);
+    md_text(234 - md_text_w(&MD_F3, 2, b), 3, &MD_F3, 2, b, K_BARTX);
     cv_blit(0, 0);
     for (x = 0; x < 2u; x++) {                     /* the rest in two bands */
         uint32_t y0 = 16u + x * 112u;
         cv_begin_at(240, 112, y0, C_BG);
         cv_oy = -(int32_t)y0;
-        cv_rect(0, (int32_t)y0, 1, 112, C_INK);
-        cv_rect(239, (int32_t)y0, 1, 112, C_INK);
-        cv_rect(0, 239, 240, 1, C_INK);
+        cv_rect(0, (int32_t)y0, 1, 112, K_RULE);
+        cv_rect(239, (int32_t)y0, 1, 112, K_RULE);
+        cv_rect(0, 239, 240, 1, K_RULE);
         for (i = 0; i <= NAME_LEN; i++) {           /* the name: F3 at 3x in 18 px slots; the cursor a solid block
                                                      * (dithered while a key's letters cycle) */
             int32_t cx = 12 + 18 * (int32_t)i;

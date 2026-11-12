@@ -5,6 +5,11 @@ released yet are listed under Unreleased.
 
 ## Unreleased
 
+- **LOOM colour theme** (this fork): MENU > COLOR has a seventh theme, LOOM, in the colours of LOOM-8's b/w theme:
+  a black ground, white values, grey labels and rules, and a colour per track for the knobs, steps, curves, tabs and
+  cursors. It is the default on a unit with no stored settings. The six two-colour themes draw exactly as before.
+  `tools/theme_check.sh` checks both.
+
 ## 1.0.1 - 2026-11-03
 
 - **Newer FM-1s save again**: FM-1s sold recently come with a different flash chip of the same size. Hortator now

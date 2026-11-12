@@ -256,13 +256,13 @@ static uint32_t bt_head_icon(void);                    /* bt_page.c: 0 none, 1 s
 static void draw_bt_icon(int32_t cx, uint32_t k)       /* the rune in BG lines, 7 x 10 px about cx; struck: a diagonal */
 {
     const int32_t t = 3, b = 12;
-    cv_line(cx, t, cx, b, C_BG);                       /* the spine, the two arrows on its right */
-    cv_line(cx, t, cx + 3, t + 3, C_BG);
-    cv_line(cx + 3, t + 3, cx - 3, b - 3, C_BG);
-    cv_line(cx, b, cx + 3, b - 3, C_BG);
-    cv_line(cx + 3, b - 3, cx - 3, t + 3, C_BG);
+    cv_line(cx, t, cx, b, K_BARTX);                       /* the spine, the two arrows on its right */
+    cv_line(cx, t, cx + 3, t + 3, K_BARTX);
+    cv_line(cx + 3, t + 3, cx - 3, b - 3, K_BARTX);
+    cv_line(cx, b, cx + 3, b - 3, K_BARTX);
+    cv_line(cx + 3, b - 3, cx - 3, t + 3, K_BARTX);
     if (k == 1u)
-        cv_line(cx - 5, b + 1, cx + 5, t - 1, C_BG);
+        cv_line(cx - 5, b + 1, cx + 5, t - 1, K_BARTX);
 }
 #endif
 /* the top bar (spec 2026-10-19-md-ui §5): an ink bar; in BG the state glyph (stop, play, REC armed elsewhere: an
@@ -293,35 +293,35 @@ static void draw_head(void)
     if (!ui.force && sig == ui.head_sig)
         return;
     ui.head_sig = sig;
-    cv_begin(240, H_HEAD, C_INK);
-    md_text(4, 3, &MD_ICON, 2, rec == 2u ? "r" : rec ? "a" : song.playing ? "p" : "s", C_BG);
+    cv_begin(240, H_HEAD, K_BAR);
+    md_text(4, 3, &MD_ICON, 2, rec == 2u ? "r" : rec ? "a" : song.playing ? "p" : "s", rec ? K_BARREC : K_BARTX);
     fmt_int(b, song.g[G_BPM]);
-    x = md_text(18, 3, &MD_F3, 2, b, C_BG);
+    x = md_text(18, 3, &MD_F3, 2, b, K_BARTX);
     if (pfx) {                                        /* FX: an inverted tag after the BPM */
-        cv_rect(x + 3, 1, 19, 14, C_BG);
-        md_text(x + 6, 3, &MD_F3, 2, "FX", C_INK);
+        cv_rect(x + 3, 1, 19, 14, K_BARTX);
+        md_text(x + 6, 3, &MD_F3, 2, "FX", K_BAR);
         x += 22;
     }
     if (head_mode(m)) {
-        x = md_text(x + 6, 3, &MD_F3, 2, m, C_BG);    /* KEYS / STEP REC: before the song's row */
+        x = md_text(x + 6, 3, &MD_F3, 2, m, K_BARTX);    /* KEYS / STEP REC: before the song's row */
     } else if (chain.running) {                       /* a song: its row */
         str_cpy(b, "SONG ", sizeof b);
         fmt_int(b + 5, (int32_t)chain.row + 1);
-        x = md_text(x + 6, 3, &MD_F3, 2, b, C_BG);
+        x = md_text(x + 6, 3, &MD_F3, 2, b, K_BARTX);
     }
     b[0] = 'T';
     b[1] = (char)('1' + song.sel);
     b[2] = 0;
-    x = md_text(x + 8 > 150 ? x + 8 : 150, 3, &MD_F3, 2, b, C_BG);
+    x = md_text(x + 8 > 150 ? x + 8 : 150, 3, &MD_F3, 2, b, K_NOWB);
     if (blink) {                                      /* the CPU chip: a 5x5 die with three pins a side */
         int32_t cx = x + 4;
-        cv_frame(cx + 2, 5, 5, 5, C_BG);
-        cv_pset(cx + 4, 7, C_BG);
+        cv_frame(cx + 2, 5, 5, 5, K_BARTX);
+        cv_pset(cx + 4, 7, K_BARTX);
         for (k = 0; k < 3u; k++) {
-            cv_pset(cx + 2 + (int32_t)k * 2, 3, C_BG);
-            cv_pset(cx + 2 + (int32_t)k * 2, 11, C_BG);
-            cv_pset(cx, 5 + (int32_t)k * 2, C_BG);
-            cv_pset(cx + 8, 5 + (int32_t)k * 2, C_BG);
+            cv_pset(cx + 2 + (int32_t)k * 2, 3, K_BARTX);
+            cv_pset(cx + 2 + (int32_t)k * 2, 11, K_BARTX);
+            cv_pset(cx, 5 + (int32_t)k * 2, K_BARTX);
+            cv_pset(cx + 8, 5 + (int32_t)k * 2, K_BARTX);
         }
     }
 #if FELUCCA_BLE
@@ -330,7 +330,7 @@ static void draw_head(void)
         draw_bt_icon(186, bt_head_icon());
 #endif
     if (usb.config && !usb.suspended)
-        md_text(196, 3, &MD_ICON, 2, "u", C_BG);
+        md_text(196, 3, &MD_ICON, 2, "u", K_BARTX);
     if (ui.env) {                                     /* STEPS (parameter locks): a padlock, the icons' 5 x 5 at 2x,
                                                        * between USB and the battery */
         static const uint8_t PADLOCK[5] = {0x0E, 0x11, 0x1F, 0x1B, 0x1F};   /* .###. #...# ##### ##.## ##### */
@@ -338,13 +338,13 @@ static void draw_head(void)
         for (r = 0; r < 5u; r++)
             for (c = 0; c < 5u; c++)
                 if ((PADLOCK[r] >> (4u - c)) & 1u)
-                    cv_rect(207 + (int32_t)c * 2, 3 + (int32_t)r * 2, 2, 2, C_BG);
+                    cv_rect(207 + (int32_t)c * 2, 3 + (int32_t)r * 2, 2, 2, K_BARTX);
     }
     lvl = batt_shown();                               /* the battery: outline, nub, up to 3 cells */
-    cv_frame(220, 4, 14, 8, C_BG);
-    cv_rect(234, 6, 2, 4, C_BG);
+    cv_frame(220, 4, 14, 8, K_BARTX);
+    cv_rect(234, 6, 2, 4, K_BARTX);
     for (k = 0; k < (uint32_t)lvl && k < 3u; k++)
-        cv_rect(222 + (int32_t)k * 4, 6, 3, 4, C_BG);
+        cv_rect(222 + (int32_t)k * 4, 6, 3, 4, K_BARTX);
     cv_blit(0, Y_HEAD);
 }
 
@@ -354,20 +354,20 @@ static void draw_frame(void)
 {
     int32_t y;
     lcd_fill(1, H_HEAD, 238, 1, C_BG);                /* (only what no region covers: nothing sent twice) */
-    lcd_fill(0, H_HEAD, 1, 1, C_INK);
-    lcd_fill(239, H_HEAD, 1, 1, C_INK);
+    lcd_fill(0, H_HEAD, 1, 1, K_RULE);
+    lcd_fill(239, H_HEAD, 1, 1, K_RULE);
     if (ui.home && !ui.layer)                         /* the HOME strip: y 17..68 */
         return;
-    lcd_fill(0, Y_KNOB, 1, H_KNOB, C_INK);           /* the knob cells: x 1..59, 61..119, 121..179, 181..238 */
-    lcd_fill(239, Y_KNOB, 1, H_KNOB, C_INK);
+    lcd_fill(0, Y_KNOB, 1, H_KNOB, K_RULE);           /* the knob cells: x 1..59, 61..119, 121..179, 181..238 */
+    lcd_fill(239, Y_KNOB, 1, H_KNOB, K_RULE);
     cv_begin(1, H_KNOB, C_BG);                        /* the dotted dividers */
     cv_oy = 0;
     for (y = 0; y < H_KNOB; y += 2)
-        cv_pset(0, y, C_INK);
+        cv_pset(0, y, K_RULE);
     cv_blit(60, Y_KNOB);
     cv_blit(120, Y_KNOB);
     cv_blit(180, Y_KNOB);
-    lcd_fill(0, Y_GRAPH - 1, 240, 1, C_INK);
+    lcd_fill(0, Y_GRAPH - 1, 240, 1, K_RULE);
 }
 
 /* a knob cell (spec 2026-10-19-md-ui §5, §6), 59 x 43 at x c*60+1: the label centred over a dotted rule; a
@@ -403,19 +403,19 @@ static void draw_column_m(uint32_t c, const char *label, const char *val, const 
     str_cpy(ui.col[c], key, sizeof ui.col[c]);
     cv_begin_at((uint32_t)w, H_KNOB, Y_KNOB, C_BG);
     if (l[0]) {
-        md_text((w - md_text_w(&MD_F3, 2, l)) / 2, 2, &MD_F3, 2, l, C_INK);
-        cv_hdot(1, w - 2, 14, C_INK);
+        md_text((w - md_text_w(&MD_F3, 2, l)) / 2, 2, &MD_F3, 2, l, K_LAB);
+        cv_hdot(1, w - 2, 14, K_RULE);
     }
     vw = md_text_w(&MD_F3, 2, v);
     if (ratio >= 0) {                                 /* the knob, the value right of it (4 glyphs fit, 3 px clear of
                                                        * the LFO dot) */
-        cv_knob(14, 28, 8, ratio, mod, C_INK);
+        cv_knob(14, 28, 8, ratio, mod, K_NOW);
         vx = 57 - vw;
     } else {
         vx = (w - vw) / 2;
     }
     if (touched && v[0]) {
-        cv_rect(vx - 2, 22, vw + 4, 13, C_INK);
+        cv_rect(vx - 2, 22, vw + 4, 13, K_NOW);
         md_text(vx, 24, &MD_F3, 2, v, C_BG);
     } else {
         md_text(vx, 24, &MD_F3, 2, v, C_INK);
@@ -1201,7 +1201,7 @@ static void list_row(int32_t x0, int32_t x1, int32_t y, const char *l, const cha
 {
     uint16_t pen = sel ? C_BG : C_INK;
     if (sel)
-        cv_rect(x0, y - 2, x1 - x0 + 1, 14, C_INK);
+        cv_rect(x0, y - 2, x1 - x0 + 1, 14, K_NOW);
     md_text(x0 + 4, y, &MD_F3, 2, l, pen);
     if (r && r[0])
         md_text(x1 - 4 - md_text_w(&MD_F3, 2, r), y, &MD_F3, 2, r, pen);
@@ -1270,13 +1270,13 @@ static void mix_row(uint32_t c, uint32_t bank, uint32_t ph)
     uint32_t sel = c == song.sel, lvl = (uint32_t)t->p[P_LEVEL] & 127u, mute = !lvl || trk_silent(t);
     uint32_t arm = (song.rec >> c) & 1u, len = view_len(t), k;
     const char *mn = N_MODEL[(uint32_t)t->p[P_MODEL] % NMODELS];
-    uint16_t pen = sel ? C_BG : C_INK;
+    uint16_t ki = k_trk[c & 7u], pen = sel ? C_BG : ki;
     char b[2] = {(char)('1' + c), 0};
     int32_t lw;
-    cv_rect(0, 0, 1, MX_RH, C_INK);
-    cv_rect(239, 0, 1, MX_RH, C_INK);
+    cv_rect(0, 0, 1, MX_RH, K_RULE);
+    cv_rect(239, 0, 1, MX_RH, K_RULE);
     if (sel)                                      /* the cursor: number + model inverted */
-        cv_rect(2, 0, 20 + md_text_w(&MD_F3, 2, mn), 13, C_INK);
+        cv_rect(2, 0, 20 + md_text_w(&MD_F3, 2, mn), 13, ki);
     md_text(4, 2, &MD_F3, 2, b, pen);
     if (arm) {                                    /* REC armed: playing a solid dot, stopped an outline */
         if (song.playing)
@@ -1295,26 +1295,26 @@ static void mix_row(uint32_t c, uint32_t bank, uint32_t ph)
             continue;
         if (st->on) {
             if (mute)
-                cv_dither(x, st->acc ? 1 : 4, 6, st->acc ? 11 : 7, C_INK);
+                cv_dither(x, st->acc ? 1 : 4, 6, st->acc ? 11 : 7, ki);
             else
-                cv_rect(x, st->acc ? 1 : 4, 6, st->acc ? 10 : 7, C_INK);
+                cv_rect(x, st->acc ? 1 : 4, 6, st->acc ? 10 : 7, ki);
         } else {
-            cv_rect(x, 10, 6, 1, C_INK);
+            cv_rect(x, 10, 6, 1, ki);
         }
         if (k + 1u == ph)
-            cv_rect(x, 12, 6, 2, C_INK);
+            cv_rect(x, 12, 6, 2, ki);
     }
     if (mute) {
-        md_text(MX_LX + 2, 2, &MD_F3, 2, "MUTE", C_INK);
+        md_text(MX_LX + 2, 2, &MD_F3, 2, "MUTE", ki);
     } else {                                      /* the level: a solid bar over a dithered box; the live peak a
                                                    * 1 px mark (BG on the bar, ink past it) */
         lw = (int32_t)lvl * (MX_LW - 2) / 127;
-        cv_frame(MX_LX, 1, MX_LW, 11, C_INK);
-        cv_dither(MX_LX + 1, 2, MX_LW - 2, 9, C_INK);
-        cv_rect(MX_LX + 1, 2, lw, 9, C_INK);
+        cv_frame(MX_LX, 1, MX_LW, 11, ki);
+        cv_dither(MX_LX + 1, 2, MX_LW - 2, 9, ki);
+        cv_rect(MX_LX + 1, 2, lw, 9, ki);
         if (mx.meter[c]) {
             int32_t px = mx.meter[c] * (MX_LW - 2) / MX_LW;
-            cv_rect(MX_LX + 1 + px, 2, 1, 9, px < lw ? C_BG : C_INK);
+            cv_rect(MX_LX + 1 + px, 2, 1, 9, px < lw ? C_BG : ki);
         }
     }
 }
@@ -1327,11 +1327,11 @@ static void draw_mix(void)
             mx.meter[c] = 0;
     rg_fill(1, Y_GRAPH, 238, MX_ROW_Y(0) - Y_GRAPH, C_BG);   /* the bands over and under the rows (on ui.force; else
                                                                * where a popup was) */
-    rg_fill(0, Y_GRAPH, 1, MX_ROW_Y(0) - Y_GRAPH, C_INK);
-    rg_fill(239, Y_GRAPH, 1, MX_ROW_Y(0) - Y_GRAPH, C_INK);
+    rg_fill(0, Y_GRAPH, 1, MX_ROW_Y(0) - Y_GRAPH, K_RULE);
+    rg_fill(239, Y_GRAPH, 1, MX_ROW_Y(0) - Y_GRAPH, K_RULE);
     rg_fill(1, MX_ROW_Y(NTRK), 238, Y_GRAPH + H_GRAPH - MX_ROW_Y(NTRK), C_BG);
-    rg_fill(0, MX_ROW_Y(NTRK), 1, Y_GRAPH + H_GRAPH - MX_ROW_Y(NTRK), C_INK);
-    rg_fill(239, MX_ROW_Y(NTRK), 1, Y_GRAPH + H_GRAPH - MX_ROW_Y(NTRK), C_INK);
+    rg_fill(0, MX_ROW_Y(NTRK), 1, Y_GRAPH + H_GRAPH - MX_ROW_Y(NTRK), K_RULE);
+    rg_fill(239, MX_ROW_Y(NTRK), 1, Y_GRAPH + H_GRAPH - MX_ROW_Y(NTRK), K_RULE);
     for (c = 0; c < NTRK; c++) {
         track_t *t = &trk[c];
         uint32_t sel = c == song.sel, lvl = (uint32_t)t->p[P_LEVEL] & 127u, mute = !lvl || trk_silent(t);
@@ -1977,8 +1977,8 @@ static void graph_perf(void)
     for (nw = rg_plan(&ui.graph_sig, sig, 0, Y_GRAPH, 240, H_GRAPH), wi = 0; wi < nw; wi++) {
         rg_win(wi, Y_GRAPH, C_BG);
         cv_oy = 0;
-        cv_rect(0, 0, 1, H_GRAPH, C_INK);
-        cv_rect(239, 0, 1, H_GRAPH, C_INK);
+        cv_rect(0, 0, 1, H_GRAPH, K_RULE);
+        cv_rect(239, 0, 1, H_GRAPH, K_RULE);
         for (i = 0; i < 10u; i++) {
             uint32_t e = PF_BLACK[i];
             perf_cell(4 + (int32_t)(i % 5u) * 47, i < 5u ? 3 : 32, 44, PF_NAME[e],
@@ -2017,10 +2017,10 @@ static void draw_mute(void)
         static const uint8_t BAND[3][2] = {{H_HEAD, MU_Y}, {MU_Y + 124u, 164u}, {226u, 239u}};
         for (k = 0; k < 3u; k++) {
             lcd_fill(1, BAND[k][0], 238, (uint32_t)(BAND[k][1] - BAND[k][0]), C_BG);
-            lcd_fill(0, BAND[k][0], 1, (uint32_t)(BAND[k][1] - BAND[k][0]), C_INK);
-            lcd_fill(239, BAND[k][0], 1, (uint32_t)(BAND[k][1] - BAND[k][0]), C_INK);
+            lcd_fill(0, BAND[k][0], 1, (uint32_t)(BAND[k][1] - BAND[k][0]), K_RULE);
+            lcd_fill(239, BAND[k][0], 1, (uint32_t)(BAND[k][1] - BAND[k][0]), K_RULE);
         }
-        lcd_fill(0, 239, 240, 1, C_INK);
+        lcd_fill(0, 239, 240, 1, K_RULE);
     }
     draw_head();
     if (ui.msg_t)
@@ -2033,20 +2033,20 @@ static void draw_mute(void)
     ui.force = 0;
     cv_begin_at(240, 124, MU_Y, C_BG);
     cv_oy = 0;
-    cv_rect(0, 0, 1, 124, C_INK);
-    cv_rect(239, 0, 1, 124, C_INK);
+    cv_rect(0, 0, 1, 124, K_RULE);
+    cv_rect(239, 0, 1, 124, K_RULE);
     for (k = 0; k < NTRK; k++) {                     /* audible: solid; muted: an outline; waiting for the bar: the
                                                        * box blinks solid / outline */
         int32_t bx = (int32_t)MU_BX(k), by = (int32_t)(MU_BY(k) - MU_Y);
         uint32_t wait = (song.mute_q >> k) & 1u;
         int on = !trk[k].p[P_MUTE] ^ (wait && blink);
         const char *mn = N_MODEL[(uint32_t)trk[k].p[P_MODEL] % NMODELS];
-        uint16_t pen = on ? C_BG : C_INK;
+        uint16_t ki = k_trk[k & 7u], pen = on ? C_BG : ki;
         int hushed = on && song.solo && !((song.solo >> k) & 1u);   /* (another track's SOLO) */
         if (on)
-            cv_rect(bx, by, MU_BW, MU_BH, C_INK);
+            cv_rect(bx, by, MU_BW, MU_BH, ki);
         else
-            cv_frame(bx, by, MU_BW, MU_BH, C_INK);
+            cv_frame(bx, by, MU_BW, MU_BH, ki);
         if (hushed)
             cv_dither(bx + 1, by + 1, (int32_t)MU_BW - 2, (int32_t)MU_BH - 2, C_BG);
         b[0] = (char)('1' + k);
@@ -2056,13 +2056,13 @@ static void draw_mute(void)
         if ((song.solo >> k) & 1u)
             md_text(bx + 4, by + 6, &MD_F3, 2, "S", pen);
         note_text(b, 53 + KEY_TRK_KEY[k]);
-        md_text(bx + ((int32_t)MU_BW - md_text_w(&MD_F3, 2, b)) / 2, by + (int32_t)MU_BH + 4, &MD_F3, 2, b, C_INK);
+        md_text(bx + ((int32_t)MU_BW - md_text_w(&MD_F3, 2, b)) / 2, by + (int32_t)MU_BH + 4, &MD_F3, 2, b, K_LAB);
     }
     cv_blit(0, MU_Y);
     cv_begin_at(240, 62, 164, C_BG);                  /* "MUTE: NOW", "C# NOW  D# NEXT BAR" (the mode's dithered
                                                        * when not chosen), "G4 LEARN: OFF" / "ON" (MIDI LEARN) */
-    cv_rect(0, 0, 1, 62, C_INK);
-    cv_rect(239, 0, 1, 62, C_INK);
+    cv_rect(0, 0, 1, 62, K_RULE);
+    cv_rect(239, 0, 1, 62, K_RULE);
     str_cpy(b, settings.mutebar ? "MUTE: NEXT BAR" : "MUTE: NOW", sizeof b);
     md_text((240 - md_text_w(&MD_F3, 2, b)) / 2, 4, &MD_F3, 2, b, C_INK);
     w = md_text_w(&MD_F3, 2, "C# NOW  D# NEXT BAR");
@@ -2134,8 +2134,8 @@ static void graph_motion(void)
             if (i == ph)
                 cv_frame(x - 1, y - 1, 14, 24, C_INK);
         }
-        cv_rect(0, 0, 1, H_GRAPH, C_INK);
-        cv_rect(239, 0, 1, H_GRAPH, C_INK);
+        cv_rect(0, 0, 1, H_GRAPH, K_RULE);
+        cv_rect(239, 0, 1, H_GRAPH, K_RULE);
         cv_blit(0, Y_GRAPH);
     }
 }
@@ -2208,8 +2208,8 @@ static void graph_song(void)
         cv_vdot(40, 3, 112, C_INK);                       /* the column rules: row | slot | repeats | name (from the */
         cv_vdot(64, 3, 112, C_INK);                       /* first row's bar down) */
         cv_vdot(100, 3, 112, C_INK);
-        cv_rect(0, 0, 1, H_GRAPH, C_INK);
-        cv_rect(239, 0, 1, H_GRAPH, C_INK);
+        cv_rect(0, 0, 1, H_GRAPH, K_RULE);
+        cv_rect(239, 0, 1, H_GRAPH, K_RULE);
         cv_blit(0, Y_GRAPH);
     }
 }
@@ -2251,8 +2251,8 @@ static void scope_paint(int fresh)
         x = md_text(10, 34, &MD_F3, 4, ui.focus_v, C_INK);
         md_text(x + 4, 44, &MD_F3, 2, ui.focus_u, C_INK);
     }
-    cv_rect(0, 0, 1, 112, C_INK);
-    cv_rect(239, 0, 1, 112, C_INK);
+    cv_rect(0, 0, 1, 112, K_RULE);
+    cv_rect(239, 0, 1, 112, K_RULE);
 }
 
 /* the page's graph in the canvas or a window of it, with ZOOM and the frame's edges; 1: something in the band above
@@ -2336,8 +2336,8 @@ static uint32_t graph_paint(int whole)
         x = md_text(10, 22, &MD_F3, 4, ui.focus_v, C_INK);
         md_text(x + 4, 32, &MD_F3, 2, ui.focus_u, C_INK);
     }
-    cv_rect(0, 0, 1, H_GRAPH, C_INK);                 /* the frame's edges */
-    cv_rect(239, 0, 1, H_GRAPH, C_INK);
+    cv_rect(0, 0, 1, H_GRAPH, K_RULE);                 /* the frame's edges */
+    cv_rect(239, 0, 1, H_GRAPH, K_RULE);
     return top;
 }
 
@@ -2554,11 +2554,11 @@ static void draw_foot(void)
     ft.ph = (uint8_t)ph;
     for (i = 0; i < rg.n; i++) {
         rg_win(i, Y_TRIG, C_BG);
-        cv_rect(0, 0, 1, H_TRIG, C_INK);
-        cv_rect(239, 0, 1, H_TRIG, C_INK);
-        cv_hdot(1, 238, 0, C_INK);
-        cv_trigs(6, 5, n, on, acc, ph, C_INK);
-        cv_lock_marks(6, 5, n, lmask, C_INK);
+        cv_rect(0, 0, 1, H_TRIG, K_RULE);
+        cv_rect(239, 0, 1, H_TRIG, K_RULE);
+        cv_hdot(1, 238, 0, K_RULE);
+        cv_trigs(6, 5, n, on, acc, ph, K_NOW);
+        cv_lock_marks(6, 5, n, lmask, K_LOCK);
         cv_blit(0, Y_TRIG);
     }
     sig = str_hash(str_hash(str_hash(str_hash(0x9E3779B9u, left), right), fn), ml) + (uint32_t)note * 31u;
@@ -2587,17 +2587,17 @@ static void draw_foot(void)
     ft.x0 = (int16_t)x0;
     ft.x1 = (int16_t)x1;
     for (i = 0; i < rg.n; i++) {
-        rg_win(i, 0, C_INK);
+        rg_win(i, 0, K_BAR);
         if (ml[0]) {                                 /* "T3 DECAY: SEND A CC", OCT+ DONE at the right where it fits */
             int32_t hx = 234 - md_text_w(&MD_F3, 2, "OCT+ DONE");
-            if (md_text(6, 8, &MD_F3, 2, ml, C_BG) + 8 <= hx)
-                md_text(hx, 8, &MD_F3, 2, "OCT+ DONE", C_BG);
+            if (md_text(6, 8, &MD_F3, 2, ml, K_BARTX) + 8 <= hx)
+                md_text(hx, 8, &MD_F3, 2, "OCT+ DONE", K_BARTX);
         } else {
-            md_text(6, 8, &MD_F3, 2, left, C_BG);
+            md_text(6, 8, &MD_F3, 2, left, K_BARTX);
             if (note)
-                md_text(120, 8, &MD_F3, 2, fn, C_BG);     /* "C#3 ACC SLD" */
+                md_text(120, 8, &MD_F3, 2, fn, K_BARTX);     /* "C#3 ACC SLD" */
             else if (right[0])
-                md_text(234 - md_text_w(&MD_F3, 2, right), 8, &MD_F3, 2, right, C_BG);
+                md_text(234 - md_text_w(&MD_F3, 2, right), 8, &MD_F3, 2, right, K_BARTX);
         }
         cv_blit(0, Y_CRUMB);
     }
@@ -2830,8 +2830,8 @@ static void draw_home_strip(void)
         rg_clip_h(Y_GRAPH - Y_KNOB);
     for (i = 0; i < rg.n; i++) {
         rg_win(i, Y_KNOB, C_BG);
-        cv_rect(0, 0, 1, 52, C_INK);
-        cv_rect(239, 0, 1, 52, C_INK);
+        cv_rect(0, 0, 1, 52, K_RULE);
+        cv_rect(239, 0, 1, 52, K_RULE);
         for (c = 0; c < 4u; c++)                      /* the bar boxes (home_bar) */
             if (c == cur)
                 cv_rect(6 + (int32_t)c * 13, 3, 10, 6, C_INK);
@@ -2853,7 +2853,7 @@ static void draw_home_strip(void)
                 continue;
             md_text(cx - md_text_w(&MD_F3, 2, l[c]) / 2, 2, &MD_F3, 2, l[c], C_INK);
             if (r[c] >= 0)
-                cv_knob(cx, 24, 7, r[c], md[c], C_INK);
+                cv_knob(cx, 24, 7, r[c], md[c], K_NOW);
             if ((inv >> c) & 1u) {                    /* touched, or a step's lock: the value inverted */
                 cv_rect(cx - vw / 2 - 2, vy - 2, vw + 4, 13, C_INK);
                 md_text(cx - vw / 2, vy, &MD_F3, 2, v[c], C_BG);
@@ -3015,6 +3015,8 @@ __attribute__((always_inline)) static inline void ui_draw(void)
         return;
     }
     ui.frame++;
+    K_NOW = k_trk[song.sel & 7u];
+    K_NOWB = k_trkb[song.sel & 7u];
     if (ui.menu) {
         draw_menu();
         ui.force = 0;
@@ -3049,7 +3051,9 @@ __attribute__((always_inline)) static inline void ui_draw(void)
             draw_frame();
             draw_head();
             draw_columns();
+            ink_push(K_NOW);
             draw_graph();
+            ink_pop();
             draw_foot();
             {
                 char q2[20] = "LOAD SLOT A SAVED";
@@ -3113,10 +3117,17 @@ __attribute__((always_inline)) static inline void ui_draw(void)
     felucca_dbg.stage = 4;
     draw_columns();
     felucca_dbg.stage = 5;
-    if (pp_on())
-        draw_popup();                                 /* PRESETS turned: the popup in the graph's place */
-    else
-        draw_graph();
+    {
+        int mix = !ui.home && !ui.layer && cur_page()->graph == GR_MIX;   /* (TRACKS: each row its own colour) */
+        if (!mix)
+            ink_push(K_NOW);
+        if (pp_on())
+            draw_popup();                             /* PRESETS turned: the popup in the graph's place */
+        else
+            draw_graph();
+        if (!mix)
+            ink_pop();
+    }
     draw_msg(draw_tempo());                           /* (the message over TEMPO) */
     if (ui.msg_t)
         ui.msg_t--;

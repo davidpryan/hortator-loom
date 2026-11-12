@@ -97,7 +97,7 @@ static void settings_init(void)
 {
     if (settings.magic != SETTINGS_MAGIC) {
         settings.magic = SETTINGS_MAGIC;
-        settings.palette = THEME_TAG | 0u;     /* MD RED (default; spec 2026-10-19-md-ui §2) */
+        settings.palette = THEME_TAG | THEME_LOOM;   /* LOOM (this fork's default; upstream: MD RED) */
         settings.lowcut = 0;
         settings.zoom = 0;                     /* large readout of the touched value: off */
         settings.accel = 1;                    /* knob acceleration (calm, upstream 1.0): on */

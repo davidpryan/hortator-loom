@@ -216,9 +216,9 @@ static void draw_menu(void)
         uint32_t y0 = H_HEAD + pass * 124u, h = pass ? 240u - H_HEAD - 124u : 124u;
         cv_begin_at(240, h, y0, C_BG);
         cv_oy = -(int32_t)y0;                       /* (drawn in screen rows) */
-        cv_rect(0, (int32_t)y0, 1, (int32_t)h, C_INK);
-        cv_rect(239, (int32_t)y0, 1, (int32_t)h, C_INK);
-        cv_rect(0, 239, 240, 1, C_INK);
+        cv_rect(0, (int32_t)y0, 1, (int32_t)h, K_RULE);
+        cv_rect(239, (int32_t)y0, 1, (int32_t)h, K_RULE);
+        cv_rect(0, 239, 240, 1, K_RULE);
         if (ui.menu == 2) {                         /* ABOUT: the logo, the credits (scrolled) */
             if (pass == 0u && fr != pf) {           /* (the peaks step once a frame, not once a band) */
                 pf = fr;

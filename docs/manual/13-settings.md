@@ -28,7 +28,7 @@ Hold [[HOME]] (0.7 s) for the **MENU**. [[SELECT]] moves the cursor, [[KNOB 1]] 
 
 | Row | Values (default) | Notes |
 | --- | --- | --- |
-| **COLOR** | RED, RED INV, BLUE, BLUE INV, GREEN, GREEN INV (RED) | the screen's two colours; applies at once. RED is the default red ground and dark ink; RED INV red on black; BLUE white on blue; BLUE INV blue on white; GREEN dark on green; GREEN INV green on black |
+| **COLOR** | RED, RED INV, BLUE, BLUE INV, GREEN, GREEN INV, LOOM (LOOM) | the screen's colours; applies at once. LOOM (this fork) is LOOM-8's b/w theme: black ground, white values, a colour per track. RED is the default red ground and dark ink; RED INV red on black; BLUE white on blue; BLUE INV blue on white; GREEN dark on green; GREEN INV green on black |
 | **SPEAKER EQ** | FLAT, LOWCUT, BASS+ (FLAT) | LOWCUT is a high-pass at about 110 Hz; BASS+ lifts about 220 Hz and adds bass harmonics for the small speaker |
 | **USB LEVEL** | MASTER, FIXED (MASTER) | whether USB follows the MASTER knob |
 | **USB AUDIO** | 2 CH, 10 CH MIX, 10 CH FX (2 CH) | standard build only; see *USB audio* |

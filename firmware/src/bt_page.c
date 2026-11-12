@@ -478,15 +478,15 @@ static void bt_page_draw(void)
     if (!ui.force && h == btp.sig)
         return;
     btp.sig = h;
-    cv_begin(240, H_HEAD, C_INK);                    /* the title bar: an ink bar, the title (or a message) in BG */
-    md_text(6, 3, &MD_F3, 2, title, C_BG);
+    cv_begin(240, H_HEAD, K_BAR);                    /* the title bar: an ink bar, the title (or a message) in BG */
+    md_text(6, 3, &MD_F3, 2, title, K_BARTX);
     cv_blit(0, Y_HEAD);
     for (pass = 0; pass < 2u; pass++) {             /* the canvas holds 124 rows: two bands, screen rows 16..239 */
         uint32_t y0 = H_HEAD + pass * 124u, hh = pass ? 240u - H_HEAD - 124u : 124u;
         cv_begin_at(240, hh, y0, C_BG);
         cv_oy = -(int32_t)(y0 - H_HEAD - 1u);       /* (rows from the old origin, H_HEAD + 1) */
-        cv_rect(0, -1, 1, 240, C_INK);
-        cv_rect(239, -1, 1, 240, C_INK);
+        cv_rect(0, -1, 1, 240, K_RULE);
+        cv_rect(239, -1, 1, 240, K_RULE);
         cv_rect(0, 238 - H_HEAD, 240, 1, C_INK);
         md_text(4, 2, &MD_F3, 2, st, C_INK);
         if (sbt != BLE_ST_FAILED && !btp.confirm)   /* (the state not FAILED, no question: dithered) */

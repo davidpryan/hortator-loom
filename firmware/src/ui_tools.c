@@ -482,9 +482,9 @@ static void draw_tools(void)
     sig = (sig ^ (ui.msg_t ? str_hash(7u, ui.msg) : 0u)) * 16777619u;
     if (ui.force) {                                 /* the ground over the two canvases (y 16..21), the frame's foot */
         lcd_fill(1, H_HEAD, 238, TL_Y - H_HEAD, C_BG);
-        lcd_fill(0, H_HEAD, 1, TL_Y - H_HEAD, C_INK);
-        lcd_fill(239, H_HEAD, 1, TL_Y - H_HEAD, C_INK);
-        lcd_fill(0, 239, 240, 1, C_INK);
+        lcd_fill(0, H_HEAD, 1, TL_Y - H_HEAD, K_RULE);
+        lcd_fill(239, H_HEAD, 1, TL_Y - H_HEAD, K_RULE);
+        lcd_fill(0, 239, 240, 1, K_RULE);
     }
     draw_head();
     if (ui.msg_t)
@@ -497,8 +497,8 @@ static void draw_tools(void)
     ui.force = 0;
     cv_begin_at(240, 124, TL_Y, C_BG);
     cv_oy = 0;
-    cv_rect(0, 0, 1, 124, C_INK);
-    cv_rect(239, 0, 1, 124, C_INK);
+    cv_rect(0, 0, 1, 124, K_RULE);
+    cv_rect(239, 0, 1, 124, K_RULE);
     tl_range(b, "STEPS ", a, a + 15u);                /* (the track: the top bar's T<n>) */
     md_text(6, 3, &MD_F3, 2, b, C_INK);
     str_cpy(b, "LEN ", sizeof b);
@@ -554,8 +554,8 @@ static void draw_tools(void)
     cv_blit(0, TL_Y);
     cv_begin_at(240, TL_H2, TL_Y2, C_BG);
     cv_oy = 0;
-    cv_rect(0, 0, 1, (int32_t)TL_H2, C_INK);
-    cv_rect(239, 0, 1, (int32_t)TL_H2, C_INK);
+    cv_rect(0, 0, 1, (int32_t)TL_H2, K_RULE);
+    cv_rect(239, 0, 1, (int32_t)TL_H2, K_RULE);
     cv_hdot(1, 238, 0, C_INK);
     for (k = 0; k < 10u; k++) {                     /* the tools: two columns, five rows */
         uint32_t key = TOOL[k].key;

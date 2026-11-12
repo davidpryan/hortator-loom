@@ -399,8 +399,8 @@ static void draw_popup(void)
                                                        * an inverted bar (F3 3x), its neighbours plain, the outer two
                                                        * dithered; a dotted rule where a bank ends */
         cv_oy = 0;
-        cv_rect(0, 0, 1, H_GRAPH, C_INK);
-        cv_rect(239, 0, 1, H_GRAPH, C_INK);
+        cv_rect(0, 0, 1, H_GRAPH, K_RULE);
+        cv_rect(239, 0, 1, H_GRAPH, K_RULE);
         cv_tab(2, 2, N_PBANK[preset_bank_of(r[2]) % PB_N], C_INK, C_BG);
         md_text(234 - md_text_w(&MD_F3, 2, tn), 4, &MD_F3, 2, tn, C_INK);
         for (i = 0; i < 5u; i++) {
@@ -454,28 +454,28 @@ static void draw_plist(void)
     ui.force = 0;
     cv_begin_at(240, 48, 0, C_BG);                     /* the title bar, the banks as tabs */
     cv_oy = 0;
-    cv_rect(0, 0, 240, 16, C_INK);
-    cv_rect(0, 0, 1, 48, C_INK);
-    cv_rect(239, 0, 1, 48, C_INK);
+    cv_rect(0, 0, 240, 16, K_BAR);
+    cv_rect(0, 0, 1, 48, K_RULE);
+    cv_rect(239, 0, 1, 48, K_RULE);
     if (ui.pr.arm) {
-        md_text(6, 3, &MD_F3, 2, ui.pr.arm == 1u ? "SAVE AGAIN: OVERWRITE" : "OCT- AGAIN: DELETE", C_BG);
+        md_text(6, 3, &MD_F3, 2, ui.pr.arm == 1u ? "SAVE AGAIN: OVERWRITE" : "OCT- AGAIN: DELETE", K_BARTX);
     } else if (ui.msg_t) {
-        md_text(6, 3, &MD_F3, 2, ui.msg, C_BG);
+        md_text(6, 3, &MD_F3, 2, ui.msg, K_BARTX);
     } else {
         str_cpy(b, "PRESETS  T1", sizeof b);
         b[10] = (char)('1' + song.sel);
-        md_text(6, 3, &MD_F3, 2, b, C_BG);
+        md_text(6, 3, &MD_F3, 2, b, K_BARTX);
         fmt_int(b, (int32_t)(ui.pr.cur - PRE_BANK_START[bank] + 1u));
         str_cpy(b + str_len(b), "/", 4);
         fmt_int(b + str_len(b), (int32_t)(PRE_BANK_START[bank + 1u] - PRE_BANK_START[bank]));
-        md_text(234 - md_text_w(&MD_F3, 2, b), 3, &MD_F3, 2, b, C_BG);
+        md_text(234 - md_text_w(&MD_F3, 2, b), 3, &MD_F3, 2, b, K_BARTX);
     }
     for (i = 0, x = 4; i < PB_N; i++) {                /* the cursor's bank a solid tab, the others outlined */
         int32_t w = md_text_w(&MD_F3, 2, PB_TAB[i]) + 10;
         cv_button(x, 23, w, PB_TAB[i], i == bank, C_INK, C_BG);
         x += w + 6;
     }
-    cv_hdot(1, 238, 44, C_INK);
+    cv_hdot(1, 238, 44, K_RULE);
     cv_blit(0, 0);
     for (i = 0; i < PL_ROWS; i++) {                    /* the rows, in two strips (the canvas: CV_MAX); the cursor's
                                                        * an inverted bar; the track's own a square; empty dithered */
@@ -486,13 +486,13 @@ static void draw_plist(void)
         if (i % PL_HALF == 0u) {
             uint32_t h = (PL_ROWS - i < PL_HALF ? PL_ROWS - i : PL_HALF) * PL_RH;
             cv_begin_at(240, h, 48u + i * PL_RH, C_BG);
-            cv_rect(0, 0, 1, (int32_t)h, C_INK);
-            cv_rect(239, 0, 1, (int32_t)h, C_INK);
+            cv_rect(0, 0, 1, (int32_t)h, K_RULE);
+            cv_rect(239, 0, 1, (int32_t)h, K_RULE);
         }
         if (cur)
-            cv_rect(2, y + 2, 236, PL_RH - 3, C_INK);
+            cv_rect(2, y + 2, 236, PL_RH - 3, K_NOW);
         if (i && preset_bank_of(id) != preset_bank_of(id - 1u))
-            cv_hdot(2, 237, y, C_INK);
+            cv_hdot(2, 237, y, K_RULE);
         if (id == own)
             cv_rect(6, y + 7, 6, 6, pen);              /* the track's own */
         if (!full) {
@@ -509,8 +509,8 @@ static void draw_plist(void)
     }
     cv_begin_at(240, 52, 48u + PL_ROWS * PL_RH, C_BG);  /* the controls as keycaps (the knobs move and pick the bank,
                                                        * unsaid); DELETE dithered when there is nothing to delete */
-    cv_rect(0, 0, 1, 52, C_INK);
-    cv_rect(239, 0, 1, 52, C_INK);
+    cv_rect(0, 0, 1, 52, K_RULE);
+    cv_rect(239, 0, 1, 52, K_RULE);
     cv_rect(0, 51, 240, 1, C_INK);
     cv_hdot(1, 238, 0, C_INK);
     x = cv_keycap(6, 6, "OCT+", "LOAD", C_INK);
